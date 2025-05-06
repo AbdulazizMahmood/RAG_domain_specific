@@ -26,7 +26,7 @@ This project is a Retrieval Augmented Generation (RAG) application that allows u
 2.  **Create a virtual environment (recommended):**
     ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    source venv/bin/activate  # On Windows 
     ```
 3.  **Install dependencies:**
     ```bash
