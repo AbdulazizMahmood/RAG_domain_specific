@@ -56,8 +56,7 @@ This project is a Retrieval Augmented Generation (RAG) application that allows u
 ```
 .
 ├── Data/                     # Directory to store PDF files (optional, configure in config.py)
-├── persist_directory/        # Directory for storing vector database persistence
-├── __pycache__/              # Python cache files
+├── faiss_index/       # Directory for storing vector database persistence
 ├── config.py                 # Configuration file (e.g., PDF path)
 ├── rag_core.py               # Core RAG logic (building QA chain, etc.)
 ├── requirements.txt          # Python dependencies

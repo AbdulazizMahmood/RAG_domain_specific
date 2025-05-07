@@ -1,5 +1,5 @@
 # Python
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -34,7 +34,8 @@ persist_directory/
 README_files/
 README.html
 Data/
-faiss_index 
+**/faiss_index/
+**/Data/
 
 # Data directory - if it contains large files or user-specific data
 # If all PDFs in Data/ should be ignored:
