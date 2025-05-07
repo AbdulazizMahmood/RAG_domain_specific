@@ -5,20 +5,52 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import ConversationalRetrievalChain
+from tqdm import tqdm
 import os
 
-os.environ["GOOGLE_API_KEY"] = "api_key" # replace
 
-def build_qa_chain(pdf_path="example.pdf"):
-    loader = PyPDFLoader(pdf_path) 
-    documents = loader.load()
-
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100) 
-    docs = splitter.split_documents(documents)
-
+def build_qa_chain(pdf_folder_path, index_path="faiss_index"):
+    
+    google_api_key = os.environ.get("GOOGLE_API_KEY")
+    if not google_api_key:
+        raise ValueError("GOOGLE_API_KEY environment variable not set")
+    
+    # Check if the FAISS index already exists
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2") 
-    db = FAISS.from_documents(docs, embeddings) 
-    retriever = db.as_retriever()
+    if os.path.exists(index_path) and os.path.isdir(index_path):
+        print(f"Loading existing vector database from {index_path}")
+
+        db = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+        retriever = db.as_retriever()
+    else:
+        # Process documents and create a new index
+        documents = []
+        if not os.path.isdir(pdf_folder_path):
+            raise ValueError(f"Provided path {pdf_folder_path} is not a directory.")
+
+        for filename in tqdm(os.listdir(pdf_folder_path), desc="Loading PDFs"):
+            if filename.lower().endswith(".pdf"):
+                pdf_path = os.path.join(pdf_folder_path, filename)
+                try:
+                    loader = PyPDFLoader(pdf_path)
+                    documents.extend(loader.load())
+                    print(f"Successfully loaded: {pdf_path}")
+                except Exception as e:
+                    print(f"Error loading {pdf_path}: {str(e)}")
+        
+        if not documents:
+            raise ValueError("No PDF documents were successfully loaded from the directory.")
+
+        splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100) 
+        docs = splitter.split_documents(documents)
+
+       
+        db = FAISS.from_documents(docs, embeddings) 
+        
+        print(f"Saving vector database to {index_path}")
+        db.save_local(index_path)
+        
+        retriever = db.as_retriever()
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash") 
     qa_chain = ConversationalRetrievalChain.from_llm(

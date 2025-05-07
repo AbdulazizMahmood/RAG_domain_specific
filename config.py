@@ -5,4 +5,4 @@ Chat History:
 Follow Up: {question}
 Standalone Question:"""
 
-PDF_PATH = "final-year-Project.pdf"  # Path to the PDF file
+PDF_PATH = "Data"  # Path to the PDF file
