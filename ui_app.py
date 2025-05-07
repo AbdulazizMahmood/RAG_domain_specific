@@ -15,13 +15,21 @@ if "chat_history" not in st.session_state:
 question = st.text_input("What would you like to know?", key="input")
 
 if question:
+    formatted_history = st.session_state.chat_history
+    
     result = qa_chain.invoke({
         "question": question,
-        "chat_history": st.session_state.chat_history
+        "chat_history": formatted_history
     })
 
     st.session_state.chat_history.append((question, result["answer"])) 
 
+    with st.expander("Sources"):
+        for i, doc in enumerate(result["source_documents"]):
+            st.write(f"Source {i+1}:")
+            st.write(doc.page_content)
+            st.write("---")
+    
     # Displays the chat history in reverse order (newest on top)
     for i, (q, a) in enumerate(st.session_state.chat_history[::-1]):
         st.markdown(f"**❓ Question {len(st.session_state.chat_history) - i}:** {q}")

@@ -5,6 +5,9 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import ConversationalRetrievalChain
+from config import CONDENSE_QUESTION_TEMPLATE
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 from tqdm import tqdm
 import os
 
@@ -53,10 +56,16 @@ def build_qa_chain(pdf_folder_path, index_path="faiss_index"):
         retriever = db.as_retriever()
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash") 
+    
+    # Define the prompt template for condensing the question
+    condense_prompt = PromptTemplate.from_template(CONDENSE_QUESTION_TEMPLATE)
+    
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=retriever,
-        return_source_documents=True
+        return_source_documents=True,
+        condense_question_prompt=condense_prompt,
+        verbose=True,
     )
 
     return qa_chain
