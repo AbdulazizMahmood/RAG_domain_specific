@@ -33,7 +33,8 @@ final-year-Project.pdf
 persist_directory/
 README_files/
 README.html
-Data/ 
+Data/
+faiss_index 
 
 # Data directory - if it contains large files or user-specific data
 # If all PDFs in Data/ should be ignored:
