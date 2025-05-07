@@ -36,7 +36,16 @@ def build_qa_chain(pdf_folder_path, index_path="faiss_index"):
                 pdf_path = os.path.join(pdf_folder_path, filename)
                 try:
                     loader = PyPDFLoader(pdf_path)
-                    documents.extend(loader.load())
+                    docs = loader.load()
+                    
+                    # Add additional metadata to each document
+                    for doc in docs:
+                        doc.metadata["filename"] = filename
+                        doc.metadata["file_path"] = pdf_path
+                        doc.metadata["creation_time"] = os.path.getctime(pdf_path)
+                        doc.metadata["last_modified"] = os.path.getmtime(pdf_path)
+                        
+                    documents.extend(docs)
                     print(f"Successfully loaded: {pdf_path}")
                 except Exception as e:
                     print(f"Error loading {pdf_path}: {str(e)}")
@@ -53,7 +62,11 @@ def build_qa_chain(pdf_folder_path, index_path="faiss_index"):
         print(f"Saving vector database to {index_path}")
         db.save_local(index_path)
         
-        retriever = db.as_retriever()
+        retriever = db.as_retriever( search_kwargs={
+            "k": 4,  # Number of documents to retrieve
+            "score_threshold": 0.5, 
+            "include_metadata": True  
+        })
 
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash") 
     
@@ -66,6 +79,7 @@ def build_qa_chain(pdf_folder_path, index_path="faiss_index"):
         return_source_documents=True,
         condense_question_prompt=condense_prompt,
         verbose=True,
+        return_generated_question=True,
     )
 
     return qa_chain

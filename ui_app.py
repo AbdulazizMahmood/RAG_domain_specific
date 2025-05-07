@@ -5,8 +5,7 @@ from config import PDF_PATH
 st.set_page_config(page_title="📄 PDF-Chatbot", layout="wide") 
 st.title("📄 Chat with your PDF")
 
-qa_chain = build_qa_chain(PDF_PATH) #Builds the QA chain using the specified PDF file
-
+qa_chain = build_qa_chain(PDF_PATH)
 #Initializes the chat history in Streamlit's session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []  
@@ -26,7 +25,14 @@ if question:
 
     with st.expander("Sources"):
         for i, doc in enumerate(result["source_documents"]):
-            st.write(f"Source {i+1}:")
+     
+            filename = doc.metadata.get("filename", "Unknown source")
+   
+            page = doc.metadata.get("page", "")
+            page_info = f" (Page {page})" if page else ""
+            
+          
+            st.markdown(f"**Source {i+1}: {filename}{page_info}**")
             st.write(doc.page_content)
             st.write("---")
     
