@@ -82,7 +82,7 @@ st.markdown("""
 
 
 with st.sidebar:
-    st.title("📚 DocChat Settings")
+    st.title("🧑‍⚕️ DocChat Settings")
     st.write("Configure your document chat experience")
     
     # Document information
